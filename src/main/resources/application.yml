@@ -1,0 +1,16 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:8000/NGT_NEW
+    username: postgres
+    password: 1234
+  jpa:
+    show-sql: true
+
+
