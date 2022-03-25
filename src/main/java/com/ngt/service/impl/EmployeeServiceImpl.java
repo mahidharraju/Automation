@@ -1,11 +1,7 @@
 package com.ngt.service.impl;
 
-import com.ngt.entity.Employee;
-import com.ngt.entity.Practice;
-import com.ngt.entity.SubPractice;
-import com.ngt.repository.EmployeeRepository;
-import com.ngt.repository.PracticeRepository;
-import com.ngt.repository.SubPracticeRepository;
+import com.ngt.entity.*;
+import com.ngt.repository.*;
 import com.ngt.service.EmployeeService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
@@ -27,6 +23,15 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Autowired
     SubPracticeRepository subPracticeRepository;
+
+    @Autowired
+    AccountRepository accountRepository;
+
+    @Autowired
+    ProjectRepository projectRepository;
+
+    @Autowired
+    EmployeeProjectRepository employeeProjectRepository;
 
     private static AtomicReference<HashMap<String,Practice>> practiceMap = new
             AtomicReference<>();
@@ -54,6 +59,13 @@ public class EmployeeServiceImpl implements EmployeeService {
         int emailId=15;
         int practice=16;
         int subPractice=17;
+        int ultimateAccountName =22;
+        int accountName =23;
+        int projectPuName = 24;
+        int projectName = 26;
+        int projectNumber = 27;
+        int projectStartDate= 28;
+        int projectRollOffDate = 29;
 
         for(Row row :sheet){
             if(row.getRowNum()==0){
@@ -87,6 +99,20 @@ public class EmployeeServiceImpl implements EmployeeService {
                         practice=cell.getColumnIndex();
                     else if(cell.getStringCellValue().equalsIgnoreCase("Sub Practice"))
                         subPractice=cell.getColumnIndex();
+                    else if(cell.getStringCellValue().equalsIgnoreCase("Ultimate Account Name"))
+                        ultimateAccountName=cell.getColumnIndex();
+                    else if(cell.getStringCellValue().equalsIgnoreCase("Account Name"))
+                        accountName=cell.getColumnIndex();
+                    else if(cell.getStringCellValue().equalsIgnoreCase("Project PU Name"))
+                        projectPuName=cell.getColumnIndex();
+                    else if(cell.getStringCellValue().equalsIgnoreCase("Project Name"))
+                        projectName=cell.getColumnIndex();
+                    else if(cell.getStringCellValue().equalsIgnoreCase("Project Number"))
+                        projectNumber=cell.getColumnIndex();
+                    else if(cell.getStringCellValue().equalsIgnoreCase("Project Start Date"))
+                        projectStartDate=cell.getColumnIndex();
+                    else if(cell.getStringCellValue().equalsIgnoreCase("Project Roll-off Date"))
+                        projectRollOffDate=cell.getColumnIndex();
                 }
             }
             break;
@@ -109,6 +135,14 @@ public class EmployeeServiceImpl implements EmployeeService {
                 String emailIdValue =null;
                 String practiceValue =null;
                 String subPracticeValue =null;
+                String ultimateAccountNameValue =null;
+                String accountNameValue =null;
+                String projectPuNameValue = null;
+                String  projectNameValue = null;
+                int projectNumberValue = 0;
+                Date projectStartDateValue= null;
+                Date projectRollOffDateValue = null;
+
                 Practice practiceEntity = null;
                 SubPractice subPracticeEntity = null;
                 for(Cell cell : row){
@@ -166,6 +200,31 @@ public class EmployeeServiceImpl implements EmployeeService {
                         DataFormatter formatter = new DataFormatter();
                         emailIdValue = formatter.formatCellValue(cell);
                     }
+                    else if(cell.getColumnIndex()==ultimateAccountName){
+                        DataFormatter formatter = new DataFormatter();
+                        ultimateAccountNameValue = formatter.formatCellValue(cell);
+                    }
+                    else if(cell.getColumnIndex()==accountName){
+                        DataFormatter formatter = new DataFormatter();
+                        accountNameValue = formatter.formatCellValue(cell);
+                    }
+                    else if(cell.getColumnIndex()==projectPuName){
+                        DataFormatter formatter = new DataFormatter();
+                        projectPuNameValue = formatter.formatCellValue(cell);
+                    }
+                    else if(cell.getColumnIndex()==projectName){
+                        DataFormatter formatter = new DataFormatter();
+                        projectNameValue = formatter.formatCellValue(cell);
+                    }
+                    else if(cell.getColumnIndex()==projectNumber){
+                        projectNumberValue = Integer.parseInt(cell.getStringCellValue());
+                    }
+                    else if(cell.getColumnIndex()==projectStartDate){
+                        projectStartDateValue = cell.getDateCellValue();
+                    }
+                    else if(cell.getColumnIndex()==projectRollOffDate){
+                        projectRollOffDateValue = cell.getDateCellValue();
+                    }
                     else if(cell.getColumnIndex()==practice){
                         DataFormatter formatter = new DataFormatter();
                         practiceValue = formatter.formatCellValue(cell);
@@ -190,6 +249,9 @@ public class EmployeeServiceImpl implements EmployeeService {
                     }
 
                   }
+                Account accountEntity = createOrGetAccount(ultimateAccountNameValue,accountNameValue);
+                Project projectEntity = createOrGetProject(projectPuNameValue,projectNameValue,projectNumberValue);
+
                 Employee employee = employeeRepository.findByGgid(ggid_value);
                 if(employee!=null){
                     if(!employee.getCurrentPractice().getName().equals(practiceValue)){
@@ -244,9 +306,61 @@ public class EmployeeServiceImpl implements EmployeeService {
                 }
 
                 employees.add(employeeRepository.save(employee));
+                updateEmployeeProject(employee.getGgid(),
+                        projectEntity,
+                        accountEntity,
+                        projectStartDateValue,
+                        projectRollOffDateValue);
             }
         }
         return employees;
+    }
+
+    private void updateEmployeeProject(Integer ggid,
+                                       Project projectEntity,
+                                       Account accountEntity,
+                                       Date projectStartDate,
+                                       Date projectRollOffDate) {
+        EmployeeProject empProject = EmployeeProject
+                .builder()
+                .ggid(ggid)
+                .projectId(projectEntity.getId())
+                .accountId(accountEntity.getId())
+                .projectStartDate(projectStartDate)
+                .projectRollOffDate(projectRollOffDate)
+                .build();
+        employeeProjectRepository.save(empProject);
+
+    }
+
+    private Project createOrGetProject(String projectPuName, String projectName, int projectNumber) {
+        Project project = projectRepository.findByNameCodeAndPuName( projectPuName,projectName,projectNumber);
+        if(project!=null)
+            return project;
+        else{
+            project = Project
+                    .builder()
+                    .projectNumber(projectNumber)
+                    .projectPuName(projectPuName)
+                    .projectName(projectName)
+                    .build();
+            return projectRepository.save(project);
+        }
+    }
+
+    private Account createOrGetAccount(String ultimateAccountNameValue, String accountNameValue) {
+        Account account = accountRepository.findByUltimateAccountNameAndAccountName
+                (ultimateAccountNameValue,accountNameValue);
+        if(account!=null)
+            return account;
+        else{
+            account = Account
+                    .builder()
+                    .ultimateAccountName(ultimateAccountNameValue)
+                    .accountName(accountNameValue)
+                    .build();
+            return accountRepository.save(account);
+        }
     }
 
     private void initialisePracticeData() {

@@ -1,30 +1,26 @@
-CREATE TABLE IF NOT EXISTS Employee_Practice
+CREATE TABLE IF NOT EXISTS Account
 (
-    GGID bigint NOT NULL,
-    Current_Practice_ID uuid,
-    Current_Sub_Practice_ID uuid,
-    New_Practice_ID uuid,
-    New_Sub_Practice_ID uuid,
-    Is_Practice_Changed boolean,
-    Created_By character varying,
-    Created_Date date,
-    Modified_By character varying,
-    Modified_Date date,
-    CONSTRAINT PK_Employee_Practice_GGID PRIMARY KEY (GGID),
-    CONSTRAINT Employee_Practice_ID_Currernt_Practice_ID FOREIGN KEY (Current_Practice_ID)
-        REFERENCES Practice (ID) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION,
-    CONSTRAINT Employee_Practice_ID_Currernt_Sub_Practice_ID FOREIGN KEY (Current_Sub_Practice_ID)
-        REFERENCES Sub_Practice (ID) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION,
-    CONSTRAINT Employee_Practice_ID_New_Practice_ID FOREIGN KEY (New_Practice_ID)
-        REFERENCES Practice (ID) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION,
-    CONSTRAINT Employee_Practice_ID_New_Sub_Practice_ID FOREIGN KEY (New_Sub_Practice_ID)
-        REFERENCES Sub_Practice (ID) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION
+    id uuid NOT NULL,
+    ultimate_account_name VARCHAR(255),
+    account_name VARCHAR(255),
+    CONSTRAINT PK_Account_ID PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS Project
+(
+    id uuid NOT NULL,
+    project_pu_name VARCHAR(255),
+    project_name VARCHAR(255),
+    project_number bigint,
+    CONSTRAINT PK_Project_ID PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS Employee_project
+(
+    ggid bigint NOT NULL,
+    project_id uuid,
+    account_id uuid,
+    project_start_date date,
+    project_roll_off_date date,
+    CONSTRAINT PK_Emp_prj_ID PRIMARY KEY (ggid)
 );
