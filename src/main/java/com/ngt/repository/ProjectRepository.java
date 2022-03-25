@@ -14,6 +14,6 @@ import java.util.UUID;
 public interface ProjectRepository extends JpaRepository<Project, UUID> {
 
     @Query("select  u from Project u where u.projectPuName = :projectPuName and u.projectName =:projectName and u.projectNumber =:projectNumber")
-    Project findByNameCodeAndPuName(String  projectPuName , String projectName , int projectNumber);
+    Project findByNameCodeAndPuName(String  projectPuName , String projectName , String projectNumber);
 
 }

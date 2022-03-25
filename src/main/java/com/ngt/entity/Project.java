@@ -27,5 +27,5 @@ public class Project {
     private String projectName;
 
     @Column(name="project_number")
-    private int projectNumber;
+    private String projectNumber;
 }

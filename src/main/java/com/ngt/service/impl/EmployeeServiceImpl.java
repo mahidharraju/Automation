@@ -139,7 +139,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 String accountNameValue =null;
                 String projectPuNameValue = null;
                 String  projectNameValue = null;
-                int projectNumberValue = 0;
+                String projectNumberValue = null;
                 Date projectStartDateValue= null;
                 Date projectRollOffDateValue = null;
 
@@ -217,7 +217,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                         projectNameValue = formatter.formatCellValue(cell);
                     }
                     else if(cell.getColumnIndex()==projectNumber){
-                        projectNumberValue = Integer.parseInt(cell.getStringCellValue());
+                        projectNumberValue = cell.getStringCellValue();
                     }
                     else if(cell.getColumnIndex()==projectStartDate){
                         projectStartDateValue = cell.getDateCellValue();
@@ -333,7 +333,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     }
 
-    private Project createOrGetProject(String projectPuName, String projectName, int projectNumber) {
+    private Project createOrGetProject(String projectPuName, String projectName, String projectNumber) {
         Project project = projectRepository.findByNameCodeAndPuName( projectPuName,projectName,projectNumber);
         if(project!=null)
             return project;
