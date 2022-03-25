@@ -20,6 +20,11 @@ CREATE TABLE IF NOT EXISTS employee
     Created_By character varying ,
     Last_Modified_By character varying ,
     Last_Modified_Date date,
+    Current_Practice_ID uuid,
+    Current_Sub_Practice_ID uuid,
+    Previous_Practice_ID uuid,
+    Previous_Sub_Practice_ID uuid,
+    practice_change_date date,
     CONSTRAINT PK_Employee_GGID PRIMARY KEY (GGID)
 );
 

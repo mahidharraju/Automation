@@ -1,19 +1,19 @@
 package com.ngt.service.impl;
 
 import com.ngt.entity.Employee;
+import com.ngt.entity.Practice;
+import com.ngt.entity.SubPractice;
 import com.ngt.repository.EmployeeRepository;
+import com.ngt.repository.PracticeRepository;
+import com.ngt.repository.SubPracticeRepository;
 import com.ngt.service.EmployeeService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 @Slf4j
@@ -22,8 +22,23 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Autowired
     EmployeeRepository employeeRepository;
 
+    @Autowired
+    PracticeRepository practiceRepository;
+
+    @Autowired
+    SubPracticeRepository subPracticeRepository;
+
+    private static AtomicReference<HashMap<String,Practice>> practiceMap = new
+            AtomicReference<>();
+
+    private static AtomicReference<HashMap<String, SubPractice>> subPracticeMap = new
+            AtomicReference<>();
+
     @Override
     public List<Employee> processEmployeeCreation(Sheet sheet) {
+
+        initialisePracticeData();
+
         List<Employee> employees = new ArrayList<>();
         int li_lr_id =0;
         int gg_id =1;
@@ -37,6 +52,8 @@ public class EmployeeServiceImpl implements EmployeeService {
         int supervisorFullName = 13;
         int supervisorEmailId=14;
         int emailId=15;
+        int practice=16;
+        int subPractice=17;
 
         for(Row row :sheet){
             if(row.getRowNum()==0){
@@ -66,10 +83,15 @@ public class EmployeeServiceImpl implements EmployeeService {
                         supervisorEmailId=cell.getColumnIndex();
                     else if(cell.getStringCellValue().equalsIgnoreCase("Email ID"))
                         emailId=cell.getColumnIndex();
+                    else if(cell.getStringCellValue().equalsIgnoreCase("Practice"))
+                        practice=cell.getColumnIndex();
+                    else if(cell.getStringCellValue().equalsIgnoreCase("Sub Practice"))
+                        subPractice=cell.getColumnIndex();
                 }
             }
             break;
         }
+
 
         for(Row row :sheet){
             if(row.getRowNum()!=0){
@@ -85,6 +107,10 @@ public class EmployeeServiceImpl implements EmployeeService {
                 String supervisorFullNameValue = null;
                 String supervisorEmailIdValue =null;
                 String emailIdValue =null;
+                String practiceValue =null;
+                String subPracticeValue =null;
+                Practice practiceEntity = null;
+                SubPractice subPracticeEntity = null;
                 for(Cell cell : row){
                     if(cell.getColumnIndex()==li_lr_id){
                         DataFormatter formatter = new DataFormatter();
@@ -140,29 +166,98 @@ public class EmployeeServiceImpl implements EmployeeService {
                         DataFormatter formatter = new DataFormatter();
                         emailIdValue = formatter.formatCellValue(cell);
                     }
+                    else if(cell.getColumnIndex()==practice){
+                        DataFormatter formatter = new DataFormatter();
+                        practiceValue = formatter.formatCellValue(cell);
+                        if(practiceMap.get().get(practiceValue)!=null){
+                            practiceEntity = practiceMap.get().get(practiceValue);
+                        }
+                        else{
+                            practiceEntity=practiceRepository.findByName(practiceValue);
+                            practiceMap.get().put(practiceValue,practiceEntity);
+                        }
+
+                    }else if(cell.getColumnIndex()==subPractice){
+                        DataFormatter formatter = new DataFormatter();
+                        subPracticeValue = formatter.formatCellValue(cell);
+                        if(subPracticeMap.get().get(subPracticeValue)!=null){
+                            subPracticeEntity = subPracticeMap.get().get(subPracticeValue);
+                        }
+                        else{
+                            subPracticeEntity=subPracticeRepository.findByName(subPracticeValue);
+                            subPracticeMap.get().put(subPracticeValue,subPracticeEntity);
+                        }
+                    }
+
                   }
-                Employee e = Employee.builder()
-                        .ggid(ggid_value)
-                        .li_lr_id(li_lr_id_value)
-                        .region(regionValue)
-                        .firstName(fistNameValue)
-                        .middleName(middleNameValue)
-                        .lastName(lastNameValue)
-                        .ntLoginId(ntLoginIdValue)
-                        .globalDateOfJoining(globalDOJValue)
-                        .localDateOfJoining(localDOJValue)
-                        .supervisorFullName(supervisorFullNameValue)
-                        .supervisorEmailId(supervisorEmailIdValue)
-                        .emailId(emailIdValue)
-                        .active(true)
-                        .createdDate(new Date())
-                        .lastModifiedDate(new Date())
-                        .createdBy("System")
-                        .build();
-                Employee save = employeeRepository.save(e);
-                employees.add(save);
+                Employee employee = employeeRepository.findByGgid(ggid_value);
+                if(employee!=null){
+                    if(!employee.getCurrentPractice().getName().equals(practiceValue)){
+                        employee.setPreviousPractice(employee.getCurrentPractice());
+                        employee.setCurrentPractice(practiceEntity);
+                        employee.setPracticeChangeDate(new Date());
+                    }
+                    if(!employee.getCurrentSubPractice().getName().equals(subPracticeValue)){
+                        employee.setPreviousSubPractice(employee.getCurrentSubPractice());
+                        employee.setCurrentSubPractice(subPracticeEntity);
+                        employee.setPracticeChangeDate(new Date());
+                    }
+                    employee.setGgid(ggid_value);
+                    employee.setLi_lr_id(li_lr_id_value);
+                    employee.setRegion(regionValue);
+                    employee.setFirstName(fistNameValue);
+                    employee.setMiddleName(middleNameValue);
+                    employee.setLastName(lastNameValue);
+                    employee.setNtLoginId(ntLoginIdValue);
+                    employee.setGlobalDateOfJoining(globalDOJValue);
+                    employee.setLocalDateOfJoining(localDOJValue);
+                    employee.setSupervisorFullName(supervisorFullNameValue);
+                    employee.setSupervisorEmailId(supervisorEmailIdValue);
+                    employee.setEmailId(emailIdValue);
+                    employee.setActive(true);
+                    employee.setCreatedDate(new Date());
+                    employee.setLastModifiedDate(new Date());
+                    employee.setCreatedBy("System");
+
+                }
+                else{
+                    employee = Employee.builder()
+                            .ggid(ggid_value)
+                            .li_lr_id(li_lr_id_value)
+                            .region(regionValue)
+                            .firstName(fistNameValue)
+                            .middleName(middleNameValue)
+                            .lastName(lastNameValue)
+                            .ntLoginId(ntLoginIdValue)
+                            .globalDateOfJoining(globalDOJValue)
+                            .localDateOfJoining(localDOJValue)
+                            .supervisorFullName(supervisorFullNameValue)
+                            .supervisorEmailId(supervisorEmailIdValue)
+                            .emailId(emailIdValue)
+                            .active(true)
+                            .createdDate(new Date())
+                            .lastModifiedDate(new Date())
+                            .createdBy("System")
+                            .currentPractice(practiceEntity)
+                            .currentSubPractice(subPracticeEntity)
+                            .build();
+                }
+
+                employees.add(employeeRepository.save(employee));
             }
         }
         return employees;
+    }
+
+    private void initialisePracticeData() {
+        if(practiceMap.get()==null || practiceMap.get().isEmpty()){
+            HashMap map =  new HashMap<String, Practice>();
+            practiceMap.set(map);
+        }
+        if(subPracticeMap.get()==null || subPracticeMap.get().isEmpty()){
+            HashMap map =  new HashMap<String, Practice>();
+            subPracticeMap.set(map);
+
+        }
     }
 }

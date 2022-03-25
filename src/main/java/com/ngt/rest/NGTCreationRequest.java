@@ -1,10 +1,13 @@
 package com.ngt.rest;
 
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
 @Data
 @Builder
+@Setter
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class NGTCreationRequest {
 
     private String filePath;

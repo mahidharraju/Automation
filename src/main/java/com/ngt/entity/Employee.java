@@ -1,11 +1,9 @@
 package com.ngt.entity;
 
 import lombok.*;
-import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.util.Date;
-import java.util.UUID;
 
 @Entity
 @Table(name = "Employee")
@@ -18,7 +16,7 @@ public class Employee {
 
     @Id
     @Column(name = "GGID")
-    private int ggid;
+    private Integer ggid;
 
     @Column(name = "LI_LR_ID")
     private String li_lr_id;
@@ -54,18 +52,37 @@ public class Employee {
     private String emailId;
 
     @Column(name = "ACTIVE")
-    private Boolean active ;
+    private Boolean active;
 
     @Column(name = "Created_Date")
-    private Date createdDate ;
+    private Date createdDate;
 
     @Column(name = "Created_By")
-    private String createdBy ;
+    private String createdBy;
 
     @Column(name = "Last_Modified_By")
-    private String lastModifiedBy ;
+    private String lastModifiedBy;
 
     @Column(name = "Last_Modified_Date")
-    private Date lastModifiedDate ;
+    private Date lastModifiedDate;
+
+    @ManyToOne
+    @JoinColumn(name = "Current_Practice_ID", referencedColumnName = "ID", columnDefinition = "uuid")
+    private Practice currentPractice;
+
+    @ManyToOne
+    @JoinColumn(name = "Current_Sub_Practice_ID", referencedColumnName = "ID", columnDefinition = "uuid")
+    private SubPractice currentSubPractice;
+
+    @ManyToOne
+    @JoinColumn(name = "Previous_Practice_ID", referencedColumnName = "ID", columnDefinition = "uuid")
+    private Practice previousPractice;
+
+    @ManyToOne
+    @JoinColumn(name = "Previous_Sub_Practice_ID", referencedColumnName = "ID", columnDefinition = "uuid")
+    private SubPractice previousSubPractice;
+
+    @Column(name = "practice_change_date")
+    private Date practiceChangeDate;
 
 }

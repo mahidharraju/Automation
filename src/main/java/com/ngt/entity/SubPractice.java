@@ -1,10 +1,12 @@
 package com.ngt.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -23,4 +25,12 @@ public class SubPractice {
 
     @Column(name = "name")
     private String name;
+
+    @JsonIgnore
+    @OneToMany(mappedBy="currentSubPractice")
+    private Set<Employee> employees;
+
+   /* @JsonIgnore
+    @OneToMany(mappedBy="newSubPractice")
+    private Set<Employee> newSubPracticeEmployees;*/
 }
