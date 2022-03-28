@@ -7,9 +7,9 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:8000/NGT_NEW2
+    url: jdbc:postgresql://localhost:5432/NGT_NEW
     username: postgres
-    password: 1234
+    password: postgres
   jpa:
     show-sql: true
 

@@ -38,11 +38,4 @@ public class DataReadController {
 
         return new ResponseEntity<>(ngtService.processNewNGTData(ngtCreationRequest), HttpStatus.OK);
     }
-    /*@PutMapping(value = "/file")
-    public ResponseEntity<NGTCreationResponse> updateNewNGTData(@RequestBody NGTCreationRequest ngtCreationRequest)
-    {
-        log.debug("Stated processing ngt data {}",ngtCreationRequest.getFilePath());
-
-        return new ResponseEntity<>(ngtService.updateNGTData(ngtCreationRequest), HttpStatus.OK);
-    }*/
 }

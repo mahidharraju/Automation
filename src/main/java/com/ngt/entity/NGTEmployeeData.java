@@ -7,7 +7,7 @@ import java.util.Date;
 import java.util.UUID;
 
 @Entity
-@Table(name = "NGTEmployeeData")
+@Table(name = "ngt_employee_data")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -17,7 +17,7 @@ public class NGTEmployeeData {
 
     @Id
     @Column(name = "GGID")
-    private Integer ggid;
+    private Double ggid;
 
     @Column(name = "Shadow_Start_Date")
     private Date shadowStartDate;

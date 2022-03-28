@@ -399,7 +399,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         List<Employee> ngtEmployees = new ArrayList<>();
 
-        int gg_id =1;
+        int gg_id =0;
         int shadowStartDate = 11;
         int shadowEndDate=12;
         int shadowAccount = 15;
@@ -431,7 +431,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
         for(Row row :sheet) {
             if (row.getRowNum() != 0) {
-                int ggid_value = 0;
+                double ggid_value = 0;
                 Date shadowStartDateValue = null;
                 Date shadowEndDateValue = null;
                 String shadowAccountValue = null;
@@ -441,8 +441,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
                 for (Cell cell : row) {
                     if (cell.getColumnIndex() == gg_id) {
-                        ggid_value = Integer.parseInt(cell.getStringCellValue());
-                    }
+                        ggid_value =  cell.getNumericCellValue();            }
                     else if (cell.getColumnIndex() == shadowStartDate) {
                         shadowStartDateValue = cell.getDateCellValue();
                     }
@@ -464,18 +463,17 @@ public class EmployeeServiceImpl implements EmployeeService {
                     else if (cell.getColumnIndex() == ngtStatus) {
                         ngtStatusValue = cell.getStringCellValue();
                     }
-
-                    NGTEmployeeData ngtEmployeeData = NGTEmployeeData
-                            .builder()
-                            .ggid(ggid_value)
-                            .shadowStartDate(shadowStartDateValue)
-                            .shadowEndDate(shadowEndDateValue)
-                            .shadowAccount(shadowAccountValue)
-                            .flpSKills(flpSkillsValue)
-                            .NGTStatus(ngtStatusValue)
-                            .build();
-                    ngtEmployeeRepository.save(ngtEmployeeData);
                 }
+                NGTEmployeeData ngtEmployeeData = NGTEmployeeData
+                        .builder()
+                        .ggid(ggid_value)
+                        .shadowStartDate(shadowStartDateValue)
+                        .shadowEndDate(shadowEndDateValue)
+                        .shadowAccount(shadowAccountValue)
+                        .flpSKills(flpSkillsValue)
+                        .NGTStatus(ngtStatusValue)
+                        .build();
+                ngtEmployeeRepository.save(ngtEmployeeData);
             }
         }
             return ngtEmployees;

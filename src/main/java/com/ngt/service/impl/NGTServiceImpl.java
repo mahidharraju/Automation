@@ -39,7 +39,7 @@ public class NGTServiceImpl implements NGTService {
         }
         try {
             XSSFWorkbook wb=new XSSFWorkbook (ngtDataFile);
-            XSSFSheet sheet=wb.getSheetAt(0);
+            XSSFSheet sheet=wb.getSheetAt(1);
             List<Employee> employees = processEmpData(sheet);
             resp = NGTCreationResponse
                     .builder()

@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS NGTEmployeeData
+CREATE TABLE IF NOT EXISTS ngt_employee_data
 (
     ggid bigint NOT NULL,
     Shadow_Start_Date DATE,
