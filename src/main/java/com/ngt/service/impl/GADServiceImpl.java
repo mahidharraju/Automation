@@ -2,23 +2,21 @@ package com.ngt.service.impl;
 
 import com.ngt.entity.Employee;
 import com.ngt.repository.NGTEmployeeRepository;
-import com.ngt.rest.NGTCreationRequest;
-import com.ngt.rest.NGTCreationResponse;
+import com.ngt.rest.GADCreationRequest;
+import com.ngt.rest.GADCreationResponse;
 import com.ngt.service.EmployeeService;
-import com.ngt.service.NGTService;
-import org.apache.poi.ss.usermodel.Sheet;
+import com.ngt.service.GADService;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.util.List;
 
 @Service
-public class NGTServiceImpl implements NGTService {
+public class GADServiceImpl implements GADService {
 
 
     @Autowired
@@ -28,12 +26,12 @@ public class NGTServiceImpl implements NGTService {
     NGTEmployeeRepository ngtEmployeeRepository;
 
     @Override
-    public NGTCreationResponse processNewNGTData(NGTCreationRequest ngtCreationRequest) {
+    public GADCreationResponse processNewGADData(GADCreationRequest GADCreationRequest) {
        FileInputStream ngtDataFile = null;
-        NGTCreationResponse resp = null;
+        GADCreationResponse resp = null;
         try {
             ngtDataFile = new FileInputStream(
-                    new File(ngtCreationRequest.getFilePath()));
+                    new File(GADCreationRequest.getFilePath()));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -41,7 +39,7 @@ public class NGTServiceImpl implements NGTService {
             XSSFWorkbook wb=new XSSFWorkbook (ngtDataFile);
             XSSFSheet sheet=wb.getSheetAt(0);
             List<Employee> employees = processEmpData(sheet);
-            resp = NGTCreationResponse
+            resp = GADCreationResponse
                     .builder()
                     .employees(employees)
                     .build();
@@ -56,6 +54,6 @@ public class NGTServiceImpl implements NGTService {
 
 
     private List<Employee> processEmpData(Sheet sheet) {
-        return employeeService.processEmployeeNGTData(sheet);
+        return employeeService.processEmployeeCreation(sheet);
     }
 }

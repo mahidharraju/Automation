@@ -33,6 +33,15 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Autowired
     EmployeeProjectRepository employeeProjectRepository;
 
+    @Autowired
+    EmployeeGradeRepository employeeGradeRepository;
+
+    @Autowired
+    EmployeeLocationRepository employeeLocationRepository;
+
+    @Autowired
+    NGTEmployeeRepository ngtEmployeeRepository;
+
     private static AtomicReference<HashMap<String,Practice>> practiceMap = new
             AtomicReference<>();
 
@@ -54,11 +63,16 @@ public class EmployeeServiceImpl implements EmployeeService {
         int ntLoginId=7;
         int globalDOJ=8;
         int localDOJ=9;
+        int designation = 10;
+        int location = 11;
+        int baseLocation = 12;
         int supervisorFullName = 13;
         int supervisorEmailId=14;
         int emailId=15;
         int practice=16;
         int subPractice=17;
+        int globalGrade = 18;
+        int localGrade = 19;
         int ultimateAccountName =22;
         int accountName =23;
         int projectPuName = 24;
@@ -66,6 +80,8 @@ public class EmployeeServiceImpl implements EmployeeService {
         int projectNumber = 27;
         int projectStartDate= 28;
         int projectRollOffDate = 29;
+        int locationStandardization = 48;
+
 
         for(Row row :sheet){
             if(row.getRowNum()==0){
@@ -89,6 +105,12 @@ public class EmployeeServiceImpl implements EmployeeService {
                         globalDOJ=cell.getColumnIndex();
                     else if(cell.getStringCellValue().equalsIgnoreCase("Local Date of Joining"))
                         localDOJ=cell.getColumnIndex();
+                    else if(cell.getStringCellValue().equalsIgnoreCase("Designation"))
+                        designation=cell.getColumnIndex();
+                    else if(cell.getStringCellValue().equalsIgnoreCase("Location"))
+                        location=cell.getColumnIndex();
+                    else if(cell.getStringCellValue().equalsIgnoreCase("Base Location"))
+                        baseLocation=cell.getColumnIndex();
                     else if(cell.getStringCellValue().equalsIgnoreCase("Supervisor Full Name"))
                         supervisorFullName=cell.getColumnIndex();
                     else if(cell.getStringCellValue().equalsIgnoreCase("Supervisor Email ID"))
@@ -99,6 +121,10 @@ public class EmployeeServiceImpl implements EmployeeService {
                         practice=cell.getColumnIndex();
                     else if(cell.getStringCellValue().equalsIgnoreCase("Sub Practice"))
                         subPractice=cell.getColumnIndex();
+                    else if(cell.getStringCellValue().equalsIgnoreCase("Global Grade"))
+                        globalGrade=cell.getColumnIndex();
+                    else if(cell.getStringCellValue().equalsIgnoreCase("Local Grade"))
+                        localGrade=cell.getColumnIndex();
                     else if(cell.getStringCellValue().equalsIgnoreCase("Ultimate Account Name"))
                         ultimateAccountName=cell.getColumnIndex();
                     else if(cell.getStringCellValue().equalsIgnoreCase("Account Name"))
@@ -113,6 +139,8 @@ public class EmployeeServiceImpl implements EmployeeService {
                         projectStartDate=cell.getColumnIndex();
                     else if(cell.getStringCellValue().equalsIgnoreCase("Project Roll-off Date"))
                         projectRollOffDate=cell.getColumnIndex();
+                    else if(cell.getStringCellValue().equalsIgnoreCase("Location Standardization"))
+                        locationStandardization=cell.getColumnIndex();
                 }
             }
             break;
@@ -130,11 +158,18 @@ public class EmployeeServiceImpl implements EmployeeService {
                 String ntLoginIdValue=null;
                 Date globalDOJValue = null;
                 Date localDOJValue =null;
+                String designationValue = null;
+                String locationValue = null;
+                String baseLocationValue = null;
                 String supervisorFullNameValue = null;
                 String supervisorEmailIdValue =null;
                 String emailIdValue =null;
                 String practiceValue =null;
                 String subPracticeValue =null;
+                String currentGlobalGradeValue=null;
+                String currentLocalGradeValue=null;
+                String newGlobalGradeValue=null;
+                String newLocalGradeValue=null;
                 String ultimateAccountNameValue =null;
                 String accountNameValue =null;
                 String projectPuNameValue = null;
@@ -142,6 +177,8 @@ public class EmployeeServiceImpl implements EmployeeService {
                 String projectNumberValue = null;
                 Date projectStartDateValue= null;
                 Date projectRollOffDateValue = null;
+                String locationStandardizationValue = null;
+
 
                 Practice practiceEntity = null;
                 SubPractice subPracticeEntity = null;
@@ -187,7 +224,18 @@ public class EmployeeServiceImpl implements EmployeeService {
                             log.debug("Date is empty");
                         }
                     }
-
+                    else if(cell.getColumnIndex()==designation) {
+                        DataFormatter formatter = new DataFormatter();
+                        designationValue = formatter.formatCellValue(cell);
+                    }
+                    else if(cell.getColumnIndex()==location) {
+                        DataFormatter formatter = new DataFormatter();
+                        locationValue = formatter.formatCellValue(cell);
+                    }
+                    else if(cell.getColumnIndex()==baseLocation) {
+                        DataFormatter formatter = new DataFormatter();
+                        baseLocationValue = formatter.formatCellValue(cell);
+                    }
                     else if(cell.getColumnIndex()==supervisorFullName){
                         DataFormatter formatter = new DataFormatter();
                         supervisorFullNameValue = formatter.formatCellValue(cell);
@@ -200,6 +248,15 @@ public class EmployeeServiceImpl implements EmployeeService {
                         DataFormatter formatter = new DataFormatter();
                         emailIdValue = formatter.formatCellValue(cell);
                     }
+                    else if(cell.getColumnIndex()==globalGrade) {
+                        DataFormatter formatter = new DataFormatter();
+                        currentGlobalGradeValue = formatter.formatCellValue(cell);
+                    }
+                    else if(cell.getColumnIndex()==localGrade){
+                        DataFormatter formatter = new DataFormatter();
+                        currentLocalGradeValue = formatter.formatCellValue(cell);
+                    }
+
                     else if(cell.getColumnIndex()==ultimateAccountName){
                         DataFormatter formatter = new DataFormatter();
                         ultimateAccountNameValue = formatter.formatCellValue(cell);
@@ -220,10 +277,23 @@ public class EmployeeServiceImpl implements EmployeeService {
                         projectNumberValue = cell.getStringCellValue();
                     }
                     else if(cell.getColumnIndex()==projectStartDate){
-                        projectStartDateValue = cell.getDateCellValue();
+                        try{
+                            projectStartDateValue = cell.getDateCellValue();
+                        }
+                        catch (Exception e){
+                            log.error("Project Start Date is not defined for {}",ggid_value);
+                        }
                     }
                     else if(cell.getColumnIndex()==projectRollOffDate){
-                        projectRollOffDateValue = cell.getDateCellValue();
+                        try{
+                            projectRollOffDateValue = cell.getDateCellValue();
+                        }
+                        catch (Exception e){
+                            log.error("Project Roll off Date is not defined for {}",ggid_value);
+                        }
+                    }
+                    else if(cell.getColumnIndex()==locationStandardization){
+                        locationStandardizationValue = cell.getStringCellValue();
                     }
                     else if(cell.getColumnIndex()==practice){
                         DataFormatter formatter = new DataFormatter();
@@ -311,9 +381,143 @@ public class EmployeeServiceImpl implements EmployeeService {
                         accountEntity,
                         projectStartDateValue,
                         projectRollOffDateValue);
+                updateEmployeeGrade(employee.getGgid(),
+                        designationValue,
+                        currentGlobalGradeValue,
+                        currentLocalGradeValue);
+                updateEmployeeLocation(employee.getGgid(),
+                        locationValue,
+                        baseLocationValue,
+                        locationStandardizationValue);
             }
         }
         return employees;
+    }
+
+    @Override
+    public List<Employee> processEmployeeNGTData(Sheet sheet) {
+
+        List<Employee> ngtEmployees = new ArrayList<>();
+
+        int gg_id =1;
+        int shadowStartDate = 11;
+        int shadowEndDate=12;
+        int shadowAccount = 15;
+        int flpSkills = 22;
+        int ngtStatus = 25;
+        int billableStartDate = 19;
+        int durationDays = 21;
+        int durationWeeks = 23;
+        int contactNumber =26;
+        int billableReqID = 27;
+
+        for(Row row :sheet) {
+            if (row.getRowNum() == 0) {
+                // Headers column
+                for (Cell cell : row) {
+                    if (cell.getStringCellValue().equalsIgnoreCase("KIN ID"))
+                        gg_id = cell.getColumnIndex();
+                    else if (cell.getStringCellValue().equalsIgnoreCase("Shadow Start Date"))
+                        shadowStartDate = cell.getColumnIndex();
+                    else if (cell.getStringCellValue().equalsIgnoreCase("Shadow End Date"))
+                        shadowEndDate = cell.getColumnIndex();
+                    else if (cell.getStringCellValue().equalsIgnoreCase("Shadow Account"))
+                        shadowAccount = cell.getColumnIndex();
+
+                }
+            }
+
+            break;
+        }
+        for(Row row :sheet) {
+            if (row.getRowNum() != 0) {
+                int ggid_value = 0;
+                Date shadowStartDateValue = null;
+                Date shadowEndDateValue = null;
+                String shadowAccountValue = null;
+                String flpSkillsValue = null;
+                String ngtStatusValue = null;
+
+
+                for (Cell cell : row) {
+                    if (cell.getColumnIndex() == gg_id) {
+                        ggid_value = Integer.parseInt(cell.getStringCellValue());
+                    }
+                    else if (cell.getColumnIndex() == shadowStartDate) {
+                        shadowStartDateValue = cell.getDateCellValue();
+                    }
+                    else if (cell.getColumnIndex() == shadowEndDate) {
+                        try {
+                            if (cell.getDateCellValue() != null)
+
+                                shadowEndDateValue = cell.getDateCellValue();
+                        } catch (Exception e) {
+                            log.debug("Date is empty");
+                        }
+                    }
+                    else if (cell.getColumnIndex() == shadowAccount) {
+                        shadowAccountValue = cell.getStringCellValue();
+                    }
+                    else if (cell.getColumnIndex() == flpSkills) {
+                        flpSkillsValue = cell.getStringCellValue();
+                    }
+                    else if (cell.getColumnIndex() == ngtStatus) {
+                        ngtStatusValue = cell.getStringCellValue();
+                    }
+
+                    NGTEmployeeData ngtEmployeeData = NGTEmployeeData
+                            .builder()
+                            .ggid(ggid_value)
+                            .shadowStartDate(shadowStartDateValue)
+                            .shadowEndDate(shadowEndDateValue)
+                            .shadowAccount(shadowAccountValue)
+                            .flpSKills(flpSkillsValue)
+                            .NGTStatus(ngtStatusValue)
+                            .build();
+                    ngtEmployeeRepository.save(ngtEmployeeData);
+                }
+            }
+        }
+            return ngtEmployees;
+    }
+
+    private void updateEmployeeLocation(Integer ggid,
+                                        String locationValue,
+                                        String baseLocationValue,
+                                        String locationStandardizationValue) {
+        EmployeeLocation empLocation = EmployeeLocation
+                .builder()
+                .ggid(ggid)
+                .location(locationValue)
+                .baseLocation(baseLocationValue)
+                .locationStandardization(locationStandardizationValue)
+                .createdDate(new Date())
+                .lastModifiedDate(new Date())
+                .createdBy("System")
+                .build();
+        employeeLocationRepository.save(empLocation);
+
+    }
+
+    private void updateEmployeeGrade(Integer ggid, 
+                                     String designationValue, 
+                                     String currentGlobalGradeValue, 
+                                     String currentLocalGradeValue) {
+        EmployeeGrade empGrade = EmployeeGrade
+                .builder()
+                .ggid(ggid)
+                .designation(designationValue)
+                .currentGlobalGrade(currentGlobalGradeValue)
+                .currentLocalGrade(currentLocalGradeValue)
+                .newGlobalGrade(null)
+                .newLocalGrade(null)
+                .isPromoted(false)
+                .createdDate(new Date())
+                .lastModifiedDate(new Date())
+                .createdBy("System")
+                .build();
+        employeeGradeRepository.save(empGrade);
+
     }
 
     private void updateEmployeeProject(Integer ggid,

@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS Project
     id uuid NOT NULL,
     project_pu_name VARCHAR(255),
     project_name VARCHAR(255),
-    project_number bigint,
+    project_number VARCHAR(255),
     CONSTRAINT PK_Project_ID PRIMARY KEY (id)
 );
 
