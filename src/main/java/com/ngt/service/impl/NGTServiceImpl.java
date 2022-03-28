@@ -39,8 +39,10 @@ public class NGTServiceImpl implements NGTService {
         }
         try {
             XSSFWorkbook wb=new XSSFWorkbook (ngtDataFile);
-            XSSFSheet sheet=wb.getSheetAt(1);
-            List<Employee> employees = processEmpData(sheet);
+            XSSFSheet shadowEmpSheet=wb.getSheetAt(1);
+            XSSFSheet billableEmpSheet=wb.getSheetAt(2);
+
+            List<Employee> employees = processEmpData(shadowEmpSheet, billableEmpSheet);
             resp = NGTCreationResponse
                     .builder()
                     .employees(employees)
@@ -55,7 +57,7 @@ public class NGTServiceImpl implements NGTService {
     }
 
 
-    private List<Employee> processEmpData(Sheet sheet) {
-        return employeeService.processEmployeeNGTData(sheet);
+    private List<Employee> processEmpData(Sheet shadowEmpSheet , Sheet billableEmpSheet) {
+        return employeeService.processEmployeeNGTData(shadowEmpSheet , billableEmpSheet);
     }
 }

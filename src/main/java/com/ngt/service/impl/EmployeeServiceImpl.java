@@ -395,7 +395,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public List<Employee> processEmployeeNGTData(Sheet sheet) {
+    public List<Employee> processEmployeeNGTData(Sheet shadowEmpSheet , Sheet billableEmpSheet) {
 
         List<Employee> ngtEmployees = new ArrayList<>();
 
@@ -411,7 +411,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         int contactNumber =26;
         int billableReqID = 27;
 
-        for(Row row :sheet) {
+        for(Row row :shadowEmpSheet) {
             if (row.getRowNum() == 0) {
                 // Headers column
                 for (Cell cell : row) {
@@ -429,7 +429,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
             break;
         }
-        for(Row row :sheet) {
+        for(Row row :shadowEmpSheet) {
             if (row.getRowNum() != 0) {
                 double ggid_value = 0;
                 Date shadowStartDateValue = null;
