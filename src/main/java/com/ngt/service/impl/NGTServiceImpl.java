@@ -39,8 +39,8 @@ public class NGTServiceImpl implements NGTService {
         }
         try {
             XSSFWorkbook wb=new XSSFWorkbook (ngtDataFile);
-            XSSFSheet shadowEmpSheet=wb.getSheetAt(1);
-            XSSFSheet billableEmpSheet=wb.getSheetAt(2);
+            XSSFSheet shadowEmpSheet=wb.getSheetAt(0);
+            XSSFSheet billableEmpSheet=wb.getSheetAt(1);
 
             List<Employee> employees = processEmpData(shadowEmpSheet, billableEmpSheet);
             resp = NGTCreationResponse

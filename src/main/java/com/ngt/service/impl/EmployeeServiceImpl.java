@@ -400,16 +400,22 @@ public class EmployeeServiceImpl implements EmployeeService {
         List<Employee> ngtEmployees = new ArrayList<>();
 
         int gg_id =0;
-        int shadowStartDate = 11;
-        int shadowEndDate=12;
-        int shadowAccount = 15;
-        int flpSkills = 22;
+        int shadowSheetShadowStartDate = 11;
+        int shadowSheetShadowEndDate=12;
+        int shadowSheetShadowAccount = 15;
+        int shadowSheetShadowBU = 16;
+        int shadowSheetFlpSkills = 22;
         int ngtStatus = 25;
-        int billableStartDate = 19;
-        int durationDays = 21;
-        int durationWeeks = 23;
-        int contactNumber =26;
-        int billableReqID = 27;
+        int billableSheetShadowStartDate = 9;
+        int billableSheetShadowEndDate=10;
+        int billableSheetShadowAccount = 12;
+        int billableSheetShadowBU = 13;
+        int billableFLPSkills = 17;
+        int billableStartDate = 18;
+        int durationDays = 20;
+        int durationWeeks = 22;
+        int contactNumber =25;
+        int billableReqID = 26;
 
         for(Row row :shadowEmpSheet) {
             if (row.getRowNum() == 0) {
@@ -418,11 +424,49 @@ public class EmployeeServiceImpl implements EmployeeService {
                     if (cell.getStringCellValue().equalsIgnoreCase("KIN ID"))
                         gg_id = cell.getColumnIndex();
                     else if (cell.getStringCellValue().equalsIgnoreCase("Shadow Start Date"))
-                        shadowStartDate = cell.getColumnIndex();
+                        shadowSheetShadowStartDate = cell.getColumnIndex();
                     else if (cell.getStringCellValue().equalsIgnoreCase("Shadow End Date"))
-                        shadowEndDate = cell.getColumnIndex();
+                        shadowSheetShadowEndDate = cell.getColumnIndex();
                     else if (cell.getStringCellValue().equalsIgnoreCase("Shadow Account"))
-                        shadowAccount = cell.getColumnIndex();
+                        shadowSheetShadowAccount = cell.getColumnIndex();
+                    else if (cell.getStringCellValue().equalsIgnoreCase("Shadow BU"))
+                        shadowSheetShadowBU = cell.getColumnIndex();
+                    else if (cell.getStringCellValue().equalsIgnoreCase("FLP Skills"))
+                        shadowSheetFlpSkills = cell.getColumnIndex();
+                    else if (cell.getStringCellValue().equalsIgnoreCase("NGT Status"))
+                        ngtStatus = cell.getColumnIndex();
+
+                }
+            }
+
+            break;
+        }
+        for(Row row :billableEmpSheet) {
+            if (row.getRowNum() == 0) {
+                // Headers column
+                for (Cell cell : row) {
+                    if (cell.getStringCellValue().equalsIgnoreCase("KIN ID"))
+                        gg_id = cell.getColumnIndex();
+                    else if (cell.getStringCellValue().equalsIgnoreCase("Start Date"))
+                        billableSheetShadowStartDate = cell.getColumnIndex();
+                    else if (cell.getStringCellValue().equalsIgnoreCase("End Date"))
+                        billableSheetShadowEndDate = cell.getColumnIndex();
+                    else if (cell.getStringCellValue().equalsIgnoreCase("Shadow Account"))
+                        billableSheetShadowAccount = cell.getColumnIndex();
+                    else if (cell.getStringCellValue().equalsIgnoreCase("Shadow BU"))
+                        billableSheetShadowBU = cell.getColumnIndex();
+                    else if (cell.getStringCellValue().equalsIgnoreCase("Billable Start Date"))
+                        billableStartDate = cell.getColumnIndex();
+                    else if (cell.getStringCellValue().equalsIgnoreCase("FLP Training skills"))
+                        billableFLPSkills = cell.getColumnIndex();
+                    else if (cell.getStringCellValue().equalsIgnoreCase("Duration Days"))
+                        durationDays = cell.getColumnIndex();
+                    else if (cell.getStringCellValue().equalsIgnoreCase("Duration weeks2"))
+                        durationWeeks = cell.getColumnIndex();
+                    else if (cell.getStringCellValue().equalsIgnoreCase("Contact Number"))
+                        contactNumber = cell.getColumnIndex();
+                    else if (cell.getStringCellValue().equalsIgnoreCase("Billable Requisition"))
+                        billableReqID = cell.getColumnIndex();
 
                 }
             }
@@ -435,17 +479,17 @@ public class EmployeeServiceImpl implements EmployeeService {
                 Date shadowStartDateValue = null;
                 Date shadowEndDateValue = null;
                 String shadowAccountValue = null;
+                String shadowBUValue = null;
                 String flpSkillsValue = null;
                 String ngtStatusValue = null;
-
 
                 for (Cell cell : row) {
                     if (cell.getColumnIndex() == gg_id) {
                         ggid_value =  cell.getNumericCellValue();            }
-                    else if (cell.getColumnIndex() == shadowStartDate) {
+                    else if (cell.getColumnIndex() == shadowSheetShadowStartDate) {
                         shadowStartDateValue = cell.getDateCellValue();
                     }
-                    else if (cell.getColumnIndex() == shadowEndDate) {
+                    else if (cell.getColumnIndex() == shadowSheetShadowEndDate) {
                         try {
                             if (cell.getDateCellValue() != null)
 
@@ -454,10 +498,13 @@ public class EmployeeServiceImpl implements EmployeeService {
                             log.debug("Date is empty");
                         }
                     }
-                    else if (cell.getColumnIndex() == shadowAccount) {
+                    else if (cell.getColumnIndex() == shadowSheetShadowAccount) {
                         shadowAccountValue = cell.getStringCellValue();
                     }
-                    else if (cell.getColumnIndex() == flpSkills) {
+                    else if (cell.getColumnIndex() == shadowSheetShadowBU) {
+                        shadowBUValue = cell.getStringCellValue();
+                    }
+                    else if (cell.getColumnIndex() == shadowSheetFlpSkills) {
                         flpSkillsValue = cell.getStringCellValue();
                     }
                     else if (cell.getColumnIndex() == ngtStatus) {
@@ -470,12 +517,94 @@ public class EmployeeServiceImpl implements EmployeeService {
                         .shadowStartDate(shadowStartDateValue)
                         .shadowEndDate(shadowEndDateValue)
                         .shadowAccount(shadowAccountValue)
+                        .shadowBU(shadowBUValue)
                         .flpSKills(flpSkillsValue)
                         .NGTStatus(ngtStatusValue)
+                        .createdDate(new Date())
+                        .lastModifiedDate(new Date())
+                        .createdBy("System")
                         .build();
                 ngtEmployeeRepository.save(ngtEmployeeData);
             }
         }
+        for(Row row :billableEmpSheet) {
+            if (row.getRowNum() != 0) {
+                double ggid_value = 0;
+                Date shadowStartDateValue = null;
+                Date shadowEndDateValue = null;
+                String shadowAccountValue = null;
+                String shadowBUValue = null;
+                String flpSkillsValue = null;
+                Date billableStartDateValue = null;
+                int durationDaysValue = 0;
+                int durationWeeksValue = 0;
+                String contactNumberValue = null;
+                String billableReqIDValue = null;
+
+                for (Cell cell : row) {
+                    if (cell.getColumnIndex() == gg_id) {
+                        ggid_value =  cell.getNumericCellValue();            }
+                    else if (cell.getColumnIndex() == billableSheetShadowStartDate) {
+                        shadowStartDateValue = cell.getDateCellValue();
+                    }
+                    else if (cell.getColumnIndex() == billableSheetShadowEndDate) {
+                        try {
+                            if (cell.getDateCellValue() != null)
+
+                                shadowEndDateValue = cell.getDateCellValue();
+                        } catch (Exception e) {
+                            log.debug("Date is empty");
+                        }
+                    }
+                    else if (cell.getColumnIndex() == billableSheetShadowAccount) {
+                        shadowAccountValue = cell.getStringCellValue();
+                    }
+                    else if (cell.getColumnIndex() == billableSheetShadowBU) {
+                        shadowBUValue = cell.getStringCellValue();
+                    }
+                    else if (cell.getColumnIndex() == billableFLPSkills) {
+                        flpSkillsValue = cell.getStringCellValue();
+                    }
+                    else if (cell.getColumnIndex() == billableStartDate) {
+                        billableStartDateValue = cell.getDateCellValue();
+                    }
+                    else if (cell.getColumnIndex() == durationDays) {
+                        durationDaysValue = (int) cell.getNumericCellValue();
+                    }
+                    else if (cell.getColumnIndex() == durationWeeks) {
+                        durationWeeksValue = (int) cell.getNumericCellValue();
+                    }
+                    else if (cell.getColumnIndex() == contactNumber) {
+                        DataFormatter formatter = new DataFormatter();
+                        contactNumberValue = String.valueOf(formatter.formatCellValue(cell));
+                    }
+                    else if (cell.getColumnIndex() == billableReqID) {
+                        DataFormatter formatter = new DataFormatter();
+                        billableReqIDValue = formatter.formatCellValue(cell);
+                    }
+                }
+                NGTEmployeeData ngtEmployeeData = NGTEmployeeData
+                        .builder()
+                        .ggid(ggid_value)
+                        .shadowStartDate(shadowStartDateValue)
+                        .shadowEndDate(shadowEndDateValue)
+                        .shadowAccount(shadowAccountValue)
+                        .shadowBU(shadowBUValue)
+                        .flpSKills(flpSkillsValue)
+                        .NGTStatus("billable")
+                        .billableStartDate(billableStartDateValue)
+                        .durationDays(durationDaysValue)
+                        .durationWeeks(durationWeeksValue)
+                        .contactNumber(contactNumberValue)
+                        .billableReqID(billableReqIDValue)
+                        .createdDate(new Date())
+                        .lastModifiedDate(new Date())
+                        .createdBy("System")
+                        .build();
+                ngtEmployeeRepository.save(ngtEmployeeData);
+            }
+        }
+
             return ngtEmployees;
     }
 

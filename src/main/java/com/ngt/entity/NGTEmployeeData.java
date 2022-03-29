@@ -28,13 +28,16 @@ public class NGTEmployeeData {
     @Column(name = "Shadow_Account")
     private String shadowAccount;
 
+    @Column(name = "Shadow_BU")
+    private String shadowBU;
+
     @Column(name = "FLP_Skills")
     private String flpSKills;
 
     @Column(name = "NGT_Status")
     private String NGTStatus;
 
-    /*@Column(name = "Billable_Start_Date")
+    @Column(name = "Billable_Start_Date")
     private Date billableStartDate;
 
     @Column(name = "Duration_Days")
@@ -44,11 +47,11 @@ public class NGTEmployeeData {
     private Integer durationWeeks;
 
     @Column(name = "Contact_Number")
-    private Integer contactNumber;
+    private String contactNumber;
 
     @Column(name = "Billable_ReqID")
-    private Integer billableReqID;
-*/
+    private String billableReqID;
+
     @Column(name = "Created_Date")
     private Date createdDate;
 
